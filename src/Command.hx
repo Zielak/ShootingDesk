@@ -2,19 +2,7 @@
 interface Command
 {
     
-    public function new()
-    {
-        
-    }
-
-    public function execute()
-    {
-        
-    }
-
-    public function undo()
-    {
-
-    }
+    public function execute():Void;
+    public function undo():Void;
 
 }

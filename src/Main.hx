@@ -1,6 +1,7 @@
 
 import luxe.Input;
 import luxe.Color;
+import luxe.options.DrawOptions;
 import luxe.Parcel;
 import luxe.ParcelProgress;
 import luxe.Physics;
@@ -17,6 +18,8 @@ class Main extends luxe.Game
 
     public static var random:Random;
 
+    public static var random_names:Array<String>;
+
 
     //      DUDE, it's Luxe.screen.w ...
     // public static var width     (get, null):Float;
@@ -24,6 +27,8 @@ class Main extends luxe.Game
 
     // Everything happens in States!
     var machine:States;
+
+
 
 
     override function config(config:luxe.AppConfig)
@@ -35,6 +40,8 @@ class Main extends luxe.Game
 
     override function ready()
     {
+
+        random_names = ["Shona","Jeffie","Delicia","Lucie","Cristopher","Buffy","Edythe","Carley","Leda","Kathryne","Marita","Riva","Londa","Karma","Melodee","Mozell","Dong","Willetta","Raymonde","Trena","Elayne","Hans","Dirk","Patrice","My","Sona","Chan","Yevette","Stacey","Wilfredo","Von","Twana","Gena","Clarisa","Tashina","Gudrun","Emery","Phung","Neva","Marlana","Kerrie","Harold","Albert","Guillermina","Jonelle","Bailey","Alise","Magnolia","Hollis","Lani","Kia","Rosalva","Susy","Ali","Lakita","Jeneva","Eldon","Ami","Mirta","Nelle","Blake","Breanne","Delphine","Samatha","Kizzy","Granville","Madeleine","Ginny","Johna","Imelda","Caridad","Charolette","Jerri","Laronda","Jeana","Phylicia","Joycelyn","Kaitlin","Brittani","Shonda","Luisa","Collin","Celinda","Dawne","Shaquana","Sammie","Jarvis","Elmira","Romeo","Lester","Williemae","Tyler","Aja","Nieves","Providencia","Sheba","Ettie","Isobel","Florida","Paris","Charlie","Amanda","Willie","Brenda","Karen","Russell","Sara","Randy","Julie","Anne","Bob","Clark","Darek"];
 
         preload_assets();
 
@@ -94,6 +101,12 @@ class Main extends luxe.Game
     }
 
 
+    public static function get_random_name():String
+    {
+        return random_names[Math.floor( Math.random()*random_names.length )];
+    }
+
+
 
 
 // Internal
@@ -101,8 +114,11 @@ class Main extends luxe.Game
     function preload_assets()
     {
         var parcel = new Parcel({
-            textures : [
-                { id:'assets/dg_logo.gif' },
+            // textures: [
+            //     { id:'assets/dg_logo.gif' },
+            // ],
+            texts: [
+                { id:'assets/map1.svg' }
             ]
         });
 
@@ -124,7 +140,9 @@ class Main extends luxe.Game
         machine = new States({ name:'statemachine' });
 
         machine.add( new Game({
-            // what: true
+            players: 3,
+            characters: 3,
+            distance: 10,
         }) );
         
         machine.set('game');
@@ -137,7 +155,6 @@ class Main extends luxe.Game
     {
 
         Luxe.renderer.clear_color = new Color().rgb(0x000000);
-
 
         init_states();
 

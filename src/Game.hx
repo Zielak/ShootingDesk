@@ -12,6 +12,7 @@ import luxe.tween.Actuate;
 import luxe.utils.Maths;
 import luxe.utils.Random;
 import luxe.Vector;
+import luxe.Visual;
 
 class Game extends State {
 
@@ -20,29 +21,34 @@ class Game extends State {
 
     public static var random:Random;
     public static var drawer:ShapeDrawerLuxe;
+    public static var scene:Scene;
+
+    public static var options:GameOptions;
 
 
-    // is game on? If not, then it's probably preparing (startup stuff)
-    public static var playing:Bool = false;
 
-    // Did we just loose?
+    // Is the game over?
     public static var gameover:Bool = false;
-
-    // quick delay during gameplay, like getting mushroom in Mario
-    public static var delayed:Bool = false;
 
 
     // playtime?
     public static var time:Float = 0;
 
-    public static var difficulty:Float = 0;
-
-
-
-
-
     
-    public static var commands:Array<Command>;
+    public static var commands:CommandManager;
+
+
+
+
+    public var players:Array<Player>;
+
+    public var current_player_num:Int;
+
+    public var current_player(get,null):Player;
+
+    public function get_current_player():Player{
+        return players[current_player_num];
+    }
 
 
 
@@ -55,15 +61,35 @@ class Game extends State {
     var game_events:Array<String>;
 
 
+
+
     public function new(options:GameOptions)
     {
+        Game.options = options;
 
         super({ name:'game' });
 
         Game.random = new Random(Math.random());
-        // Game.scene = new Scene('gamescene');
-
+        Game.scene = new Scene('gamescene');
         Game.drawer = new ShapeDrawerLuxe();
+        Game.commands = new CommandManager();
+
+    }
+
+    override function onenter<T>(_:T) 
+    {
+        reset();
+        create_hud();
+        init_events();
+
+        draw_map("assets/map1.svg");
+
+
+        Luxe.events.fire('game.init');
+
+        // Luxe.timer.schedule(3, function(){
+            Luxe.events.fire('game.start');
+        // });
 
     }
 
@@ -77,46 +103,30 @@ class Game extends State {
 
     }
 
-    override function onenter<T>(_:T) 
-    {
-        reset();
-
-        create_hud();
-
-        init_events();
-
-        Luxe.timer.schedule(3, function(){
-            playing = true;
-            Luxe.events.fire('game.start');
-        });
-
-
-        Luxe.events.fire('game.init');
-
-    }
-
     function reset()
     {
-        Game.difficulty = 0;
         Game.time = 0;
-
-        Game.playing = false;
         Game.gameover = false;
-        Game.delayed = false;
-
         Game.random.reset();
+        Game.scene.empty();
+
+        players = new Array<Player>();
+        for(i in 0...Game.options.players)
+        {
+            players.push( new Player({}) );
+        }
 
         Luxe.events.fire('game.reset');
     }
 
 
 
-    function next_player()
+    function next_player(?next:Bool = true)
     {
 
     }
 
-    function next_character()
+    function next_character(?next:Bool = true)
     {
 
     }
@@ -128,7 +138,6 @@ class Game extends State {
     function game_over(reason:String)
     {
 
-        Game.playing = false;
         Game.gameover = true;
         Luxe.events.fire('game.over.${reason}');
 
@@ -165,13 +174,12 @@ class Game extends State {
         game_events = new Array<String>();
 
         // Finally start the sequence when they touch
-        // game_events.push( Luxe.events.listen('player.hit.gal', function(_)
-        // {
-        //     trace('player.hit.gal !!');
-        //     Actuate.tween(Game, 2, {speed:0});
+        game_events.push( Luxe.events.listen('game.init', function(_)
+        {
+            trace('game.init');
+
             
-        //     spawner.events.fire('sequence.gal');
-        // }) );
+        }) );
     }
 
     function kill_events()
@@ -183,28 +191,59 @@ class Game extends State {
     }
 
 
+    function draw_map(id:String)
+    {
+
+        var map = Luxe.resources.text(id);
+        var xml:Xml = Xml.parse( map.asset.text );
+
+        var map_size:Vector;
+
+        for(x in xml.elementsNamed('svg')){
+
+            var viewBox = x.get('viewBox').split(' ');
+
+            map_size = new Vector( Std.parseFloat(viewBox[2]), Std.parseFloat(viewBox[3]) );
+
+
+
+            break;
+        }
+
+        // Draw map ground
+        var borders:Visual = new Visual({
+            name: 'map_borders',
+            geometry: Luxe.draw.rectangle({
+                x:0, y:0, w:map_size.x, h:map_size.y,
+            }),
+            pos: new Vector(0,0),
+            color: new Color(0.8, 0.8, 0.8),
+            scene: Game.scene,
+        });
+        
+    }
+
+
 
     override function update(dt:Float)
     {
 
-        if(Game.playing && !Game.delayed)
-        {
-            
-            Game.time += dt;
-
-        }
+        Game.time += dt;
 
     }
 
 
 
 
-    // HAXXX
     override public function onkeydown( event:KeyEvent )
     {
 
-        if(event.keycode == Key.key_p){
-            Game.delayed = !Game.delayed;
+        if(event.keycode == Key.key_z){
+            if(commands.isUndoAvailable()){
+                commands.undo();
+            }else{
+                trace('CommandManager: nothing to undo.');
+            }
         }
 
     }
@@ -216,5 +255,14 @@ class Game extends State {
 
 
 typedef GameOptions = {
-    @:optional var tutorial:Bool;
+    var players:Int;
+    var characters:Int;
+    var distance:Int;
 }
+
+
+typedef MapObject = {
+    var type:String;
+    var options:Dynamic;
+}
+

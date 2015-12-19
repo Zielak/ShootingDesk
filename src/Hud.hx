@@ -3,6 +3,7 @@ package ;
 
 import luxe.options.EntityOptions;
 import luxe.Entity;
+import luxe.tween.Actuate;
 import luxe.Input;
 import luxe.Rectangle;
 import luxe.Text;
@@ -52,12 +53,29 @@ class Hud extends Entity
     /**
      * Cursor
      */
-    // var cursor:Cursor;
+    var cursor:Vector;
 
     // Key input, camera modes debug
     // HOLD C and then hit 1-0
     var _debugHeld:Bool = false;
     var _mode:Int = 1;
+
+
+
+    /**
+     * Camera movement
+     */
+    var zoom_target:Float = 1;
+    var zoom_amount:Float = 0.2;
+    var zoom_duration:Float = 0.2;
+
+    var minimum_zoom:Float = 0.5;
+    var maximum_zoom:Float = 10;
+
+
+    public var down:Bool = false;
+    // Can be set by other events that capture mouse movement
+    var cancel_drag:Bool = false;
 
     
     override public function init():Void
@@ -111,8 +129,9 @@ class Hud extends Entity
 
     function setup_cursor()
     {
-        // cursor = new Cursor({batcher: hud_batcher});
-        // add(cursor);
+        
+        cursor = new Vector();
+
     }
 
 
@@ -176,6 +195,57 @@ class Hud extends Entity
 
         }
         
+    }
+
+
+    override function onmousemove( e:MouseEvent )
+    {
+        cursor.copy_from( e.pos );
+
+        if(down){
+            Luxe.camera.pos.x -= e.xrel/Luxe.camera.zoom;
+            Luxe.camera.pos.y -= e.yrel/Luxe.camera.zoom;
+        }
+    }
+    override function onmousedown( e:MouseEvent )
+    {
+        if(!cancel_drag && e.button == luxe.MouseButton.right){
+            down = true;
+        }
+    }
+    override function onmouseup( e:MouseEvent )
+    {
+        if(e.button == luxe.MouseButton.right){
+            down = false;
+        }
+        cancel_drag = false;
+    }
+    override function onmousewheel( e:MouseEvent )
+    {
+#if web
+        if(e.y > 0)
+#else
+        if(e.y < 0)
+#end
+        {
+            zoom_target *= 1 - zoom_amount;
+
+            if(zoom_target < minimum_zoom)
+                zoom_target = minimum_zoom;
+        }
+#if web
+        else if(e.y < 0)
+#else
+        else if(e.y > 0)
+#end
+        {
+            zoom_target *= 1 + zoom_amount;
+
+            if(zoom_target > maximum_zoom)
+                zoom_target = maximum_zoom;
+        }
+        Actuate.tween( Luxe.camera, zoom_duration, {zoom: zoom_target} );
+
     }
 
 
