@@ -1,0 +1,37 @@
+{
+
+  luxe:{
+    window: {
+      width:640,
+      height:640,
+      title:'luxe empty project',
+      fullscreen:false,
+      resizable:true,
+      borderless:false
+    }
+  },
+
+  project : {
+    name : 'empty',
+    version : '0.1.0',
+    author : 'Darek Greenly',
+
+    app : {
+      name : 'luxe_empty',
+      package : 'com.darekgreenly.empty'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+      }
+    },
+
+    files : {
+      assets : 'assets/',
+      index : { path:'custom_index.html => index.html', template:'project', not_listed:true }
+    }
+
+  }
+
+}
