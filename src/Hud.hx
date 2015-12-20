@@ -21,7 +21,7 @@ import phoenix.Camera;
 class Hud extends Entity
 {
 
-    @:isVar public var hud_batcher(default, null):Batcher;
+    @:isVar public static var hud_batcher(default, null):Batcher;
 
 
     /**
@@ -77,25 +77,39 @@ class Hud extends Entity
     // Can be set by other events that capture mouse movement
     var cancel_drag:Bool = false;
 
-    
-    override public function init():Void
+
+    var textField:Text;
+
+
+    override public function new( options:EntityOptions )
     {
+        super(options);
+
         hud_batcher = Luxe.renderer.create_batcher({
             name : 'hud_batcher',
             layer : 10,
-            no_add : true,
+            // no_add : true,
         });
-
-        setup_camera();
-        setup_hud();
-        setup_cursor();
+    }
+    
+    override public function init():Void
+    {
 
         init_events();
+
+        setup_camera();
+        setup_cursor();
+
     }
 
     function init_events()
     {
-
+        Luxe.events.listen('game.next.*', function(_){
+            update_text();
+        });
+        Luxe.events.listen('game.start', function(_){
+            setup_hud();
+        });
     }
 
     function setup_camera()
@@ -113,16 +127,20 @@ class Hud extends Entity
 
     function setup_hud()
     {
+        trace('HUD.setup_hud();');
 
-        // var textField = new Text({
+        // textField = new Text({
         //     pos : new Vector(5,Luxe.screen.h/3),
+        //     size: new Vector(Luxe.screen.width/2, Luxe.screen.width/3),
         //     point_size : 16,
-        //     depth : 3.5,
+        //     depth : 10,
         //     align : TextAlign.left,
         //     text : '',
         //     color : new Color().rgb(0xFFFFFF),
         //     batcher : hud_batcher
         // });
+
+        add(new hud.HPlayers({name:'HPlayers'}));
 
     }
 
@@ -132,6 +150,12 @@ class Hud extends Entity
         
         cursor = new Vector();
 
+    }
+
+    function update_text()
+    {
+        // trace('HUD.update_text();');
+        // textField.text = 'Round: ${Game.cur_round}\nPlayer: ${Game.cur_player}\nCharacter: ${Game.cur_character}';
     }
 
 
@@ -247,31 +271,6 @@ class Hud extends Entity
         Actuate.tween( Luxe.camera, zoom_duration, {zoom: zoom_target} );
 
     }
-
-
-    // override function onkeydown(e:KeyEvent):Void
-    // {
-    //     if(e.keycode == Key.key_c)
-    //     {
-    //         _debugHeld = true;
-    //     }
-
-    //     if(_debugHeld)
-    //     {
-    //         if(e.keycode >= 49 && e.keycode <= 57)
-    //         {
-    //             _mode = e.keycode - 48;
-    //         }
-    //     }
-    // }
-
-    // override function onkeyup(e:KeyEvent):Void
-    // {
-    //     if(e.keycode == Key.key_c)
-    //     {
-    //         _debugHeld = false;
-    //     }
-    // }
 
     public static function roundPixels(val:Float):Float
     {

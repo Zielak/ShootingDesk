@@ -40,16 +40,18 @@ class Game extends State {
 
 
 
-    public var players:Array<Player>;
+    public static var players:Array<Player>;
 
-    public var current_player_num:Int;
 
-    public var current_player(get,null):Player;
+    public static var cur_round:Int;
+    public static var cur_player:Int;
+    public static var cur_character:Int;
 
-    public function get_current_player():Player{
-        return players[current_player_num];
+    public static var player(get,null):Player;
+
+    public static function get_player():Player{
+        return players[cur_player];
     }
-
 
 
 
@@ -63,16 +65,16 @@ class Game extends State {
 
 
 
-    public function new(options:GameOptions)
+    public function new(_options:GameOptions)
     {
-        Game.options = options;
+        options = _options;
 
         super({ name:'game' });
 
-        Game.random = new Random(Math.random());
-        Game.scene = new Scene('gamescene');
-        Game.drawer = new ShapeDrawerLuxe();
-        Game.commands = new CommandManager();
+        random = new Random(Math.random());
+        scene = new Scene('gamescene');
+        drawer = new ShapeDrawerLuxe();
+        commands = new CommandManager();
 
     }
 
@@ -87,9 +89,9 @@ class Game extends State {
 
         Luxe.events.fire('game.init');
 
-        // Luxe.timer.schedule(3, function(){
+        Luxe.timer.schedule(3, function(){
             Luxe.events.fire('game.start');
-        // });
+        });
 
     }
 
@@ -99,37 +101,75 @@ class Game extends State {
         hud.destroy();
 
         kill_events();
-        // Game.scene.empty();
+        Game.scene.empty();
 
     }
 
     function reset()
     {
-        Game.time = 0;
-        Game.gameover = false;
-        Game.random.reset();
-        Game.scene.empty();
+        time = 0;
+        gameover = false;
+        random.reset();
+        scene.empty();
 
         players = new Array<Player>();
-        for(i in 0...Game.options.players)
+        for(i in 0...options.players)
         {
             players.push( new Player({}) );
         }
 
-        Luxe.events.fire('game.reset');
+        cur_round = 0;
+        cur_player = 0;
+        cur_character = 0;
     }
 
-
-
-    function next_player(?next:Bool = true)
-    {
-
-    }
 
     function next_character(?next:Bool = true)
     {
 
+        cur_character++;
+
+        if(cur_character >= player.characters.length){
+
+            next_player();
+
+        }else{
+
+            trace('Game: NEXT CHARACTER');
+            Luxe.events.fire('game.next.character');
+
+        }
+
     }
+
+    function next_player(?next:Bool = true)
+    {
+
+        cur_character = 0;
+        cur_player++;
+
+        if(cur_player >= players.length){
+
+            next_round();
+
+        }else{
+
+            trace('Game: NEXT PLAYER');
+            Luxe.events.fire('game.next.player');
+
+        }
+
+    }
+
+    function next_round(?next:Bool = true)
+    {
+        cur_player = 0;
+        cur_round++;
+
+        Luxe.events.fire('game.next.round');
+    }
+
+
 
 
 
@@ -138,7 +178,7 @@ class Game extends State {
     function game_over(reason:String)
     {
 
-        Game.gameover = true;
+        gameover = true;
         Luxe.events.fire('game.over.${reason}');
 
     }
@@ -154,18 +194,6 @@ class Game extends State {
     function create_player()
     {
 
-        // player = new Player({
-        //     name: 'player',
-        //     name_unique: true,
-        //     texture: Luxe.resources.texture('assets/images/player.gif'),
-        //     size: new Vector(16,16),
-        //     pos: new Vector(160/2, 144/2),
-        //     centered: true,
-        //     depth: 10,
-        //     scene: Game.scene,
-        // });
-        // player.texture.filter_mag = nearest;
-        // player.texture.filter_min = nearest;
 
     }
 
@@ -178,8 +206,20 @@ class Game extends State {
         {
             trace('game.init');
 
+
             
         }) );
+
+        game_events.push( Luxe.events.listen('game.start', function(_)
+        {
+            trace('game.start');
+
+            next_player();
+            
+        }) );
+
+        
+        
     }
 
     function kill_events()
@@ -205,7 +245,17 @@ class Game extends State {
 
             map_size = new Vector( Std.parseFloat(viewBox[2]), Std.parseFloat(viewBox[3]) );
 
+            // Draw all the walls and stuff
+            var map_elements = x.firstElement();
+            for(i in map_elements){
 
+                if(i.nodeType != Xml.XmlType.Element) continue;
+
+                switch(i.nodeName){
+                    case 'rect': draw_rect(i);
+                }
+
+            }
 
             break;
         }
@@ -218,9 +268,29 @@ class Game extends State {
             }),
             pos: new Vector(0,0),
             color: new Color(0.8, 0.8, 0.8),
-            scene: Game.scene,
+            scene: scene,
         });
         
+    }
+
+    function draw_rect(x:Xml)
+    {
+
+        var rect:Visual = new Visual({
+            name: x.get('id'),
+            name_unique: false,
+            geometry: Luxe.draw.box({
+                x: Std.parseFloat( x.get('x') ),
+                y: Std.parseFloat( x.get('y') ),
+                w: Std.parseFloat( x.get('width') ),
+                h: Std.parseFloat( x.get('height') ),
+            }),
+            pos: new Vector(0,0),
+            color: new Color(0.2, 0.2, 0.2),
+            depth: Std.parseFloat( x.get('y') )/1000,
+            scene: scene,
+        });
+
     }
 
 
@@ -228,7 +298,7 @@ class Game extends State {
     override function update(dt:Float)
     {
 
-        Game.time += dt;
+        time += dt;
 
     }
 

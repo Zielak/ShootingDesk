@@ -4,7 +4,7 @@
     window: {
       width:640,
       height:640,
-      title:'luxe empty project',
+      title:'Shooting Desk',
       fullscreen:false,
       resizable:true,
       borderless:false
