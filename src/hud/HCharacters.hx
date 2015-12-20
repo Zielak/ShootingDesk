@@ -238,9 +238,9 @@ class HCharacterBlock extends Component
 
     public function update_stats()
     {
-        var char_name = character.name.substring( character.name.indexOf('.', character.name.length));
+        var char_name = character.name.substring( character.name.indexOf('.')+1, character.name.length );
 
-        name_txt.text = 'Character:\n${}';
+        name_txt.text = 'Character:\n${char_name}';
     }
 
 }
