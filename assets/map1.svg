@@ -1,24 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg id="svg2" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="297mm" width="210mm" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 744.09448819 1052.3622047">
- <g id="layer1" fill-rule="evenodd">
-  <rect id="rect3415" height="80.17" width="140.2" y="260.8" x="89.91"/>
-  <rect id="rect3421" height="101.6" width="114.5" y="495.1" x="248.5"/>
-  <rect id="rect3421-4" height="87.47" width="136" y="206.5" x="338.4"/>
-  <rect id="rect3421-4-7" height="301.5" width="111.5" y="152.3" x="685.7"/>
-  <rect id="rect3421-6" height="101.9" width="74.78" y="512.1" x="609.8"/>
-  <rect id="rect3421-0" height="67.33" width="71.62" y="609.4" x="495.6"/>
-  <rect id="rect3421-0-0" height="63.42" width="114.8" y="550.7" x="495.4"/>
-  <rect id="rect3415-4" height="85.89" width="170.2" y="779.4" x="352.8"/>
-  <rect id="rect3421-1" height="68.76" width="160.2" y="999.4" x="171.3"/>
-  <rect id="rect3421-1-0" height="293" width="60.19" y="630.8" x="-5.809"/>
-  <rect id="rect3415-9" height="147.3" width="185.9" y="-8.439" x="-11.52"/>
-  <rect id="rect3415-9-5" height="67.32" width="140.2" y="-35.58" x="454.2"/>
-  <rect id="rect3415-9-5-0" height="47.32" width="140.2" y="87.28" x="335.6"/>
-  <rect id="rect3415-9-5-0-1" height="111.6" width="74.46" y="302.3" x="541.3"/>
-  <rect id="rect3421-0-8" height="137.3" width="258.8" y="936.6" x="501.3"/>
-  <rect id="rect3421-7" height="78.76" width="110.2" y="709.4" x="677"/>
-  <rect id="rect3421-7-7" height="100.2" width="74.48" y="747.3" x="137"/>
-  <rect id="rect3415-1" height="205.9" width="68.75" y="329.4" x="89.91"/>
-  <rect id="rect3421-7-7-4" height="50.19" width="121.6" y="630.8" x="32.76"/>
- </g>
+<svg id="svg2" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="297mm" viewBox="0 0 744.09448819 1052.3622047" width="210mm" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <rect id="rect3421-4" y="194" width="171" height="63.33" x="370.9"/>
+ <rect id="rect3421-4-7" y="179.8" width="111.5" height="240.7" x="685.7"/>
+ <rect id="rect3421-0" y="608.6" width="71.62" height="67.33" x="493.9"/>
+ <rect id="rect3421-0-0" transform="rotate(-42.73)" height="64.04" width="165.2" y="783" x="-51.29"/>
+ <rect id="rect3415-4" y="751.9" width="159.4" height="60.09" x="405.2"/>
+ <rect id="rect3421-1" y="889.5" width="201.8" height="68.76" x="196.3"/>
+ <rect id="rect3421-1-0" y="651.6" width="60.19" height="272.2" x="-5.809"/>
+ <rect id="rect3415-9-5" y="-36.41" width="140.2" height="94.79" x="415.9"/>
+ <rect id="rect3415-9-5-0" y="88.05" width="152" height="75.57" x="172.5"/>
+ <rect id="rect3415-9-5-0-1" transform="rotate(40.41)" height="110.1" width="77.53" y="-69.35" x="617.1"/>
+ <rect id="rect3421-0-8" y="936.6" width="258.8" height="137.3" x="501.3"/>
+ <rect id="rect3421-7" y="709.4" width="110.2" height="78.76" x="677"/>
+ <rect id="rect3421-7-7" y="629.9" width="71.98" height="122.7" x="259.4"/>
+ <rect id="rect3415-1" y="329.4" width="68.75" height="90.2" x="89.91"/>
+ <rect id="rect3421-7-7-4" y="739" width="121.6" height="50.19" x="26.93"/>
+ <circle id="path4577" cx="31.39" character="0" player="0" cy="953.6" r="1.5" fill="#f00"/>
+ <circle id="path4577-1" cx="32.24" character="1" player="0" cy="985.9" r="1.5" fill="#f00"/>
+ <circle id="path4577-1-5" cx="31.96" character="2" player="0" cy="1023" r="1.5" fill="#f00"/>
+ <circle id="path4577-4" cx="69.34" character="3" player="0" cy="952.8" r="1.5" fill="#f00"/>
+ <circle id="path4577-1-3" cx="70.2" character="4" player="0" cy="985" r="1.5" fill="#f00"/>
+ <circle id="path4577-1-5-1" cx="69.91" character="5" player="0" cy="1022" r="1.5" fill="#f00"/>
+ <circle id="path4577-4-8" cx="106.1" character="6" player="0" cy="952.2" r="1.5" fill="#f00"/>
+ <circle id="path4577-1-3-4" cx="107" character="7" player="0" cy="984.4" r="1.5" fill="#f00"/>
+ <circle id="path4577-1-5-1-4" cx="106.7" character="8" player="0" cy="1022" r="1.5" fill="#f00"/>
+ <circle id="path4577-8" cx="634.5" character="0" player="1" cy="35.67" r="1.5" fill="#00f"/>
+ <circle id="path4577-1-0" cx="635.3" character="1" player="1" cy="67.91" r="1.5" fill="#00f"/>
+ <circle id="path4577-1-5-9" cx="635" character="2" player="1" cy="105" r="1.5" fill="#00f"/>
+ <circle id="path4577-4-0" cx="672.4" character="3" player="1" cy="34.81" r="1.5" fill="#00f"/>
+ <circle id="path4577-1-3-6" cx="673.3" character="4" player="1" cy="67.06" r="1.5" fill="#00f"/>
+ <circle id="path4577-1-5-1-7" cx="673" character="5" player="1" cy="104.2" r="1.5" fill="#00f"/>
+ <circle id="path4577-4-8-1" cx="709.2" character="6" player="1" cy="34.24" r="1.5" fill="#00f"/>
+ <circle id="path4577-1-3-4-3" cx="710.1" character="7" player="1" cy="66.49" r="1.5" fill="#00f"/>
+ <circle id="path4577-1-5-1-4-7" cx="709.8" character="8" player="1" cy="103.6" r="1.5" fill="#00f"/>
+ <path id="path4841" d="m238.5 407.1l62.15 52.06" stroke="#000" stroke-width="1px" fill="none"/>
+ <path id="path4841-8" d="m364 360.6l84.62 71.2" stroke="#000" stroke-width="1px" fill="none"/>
+ <rect id="rect3415-9-5-0-8" y="125.1" width="75.46" height="75.57" x="172.6"/>
+ <path id="path4212" d="m607.8 302.6l107.2-7.699" stroke="#000" stroke-width="1px" fill="none"/>
+ <rect id="rect3415-1-6" y="482.5" width="68.75" height="101" x="89.65"/>
+ <rect id="rect3415" transform="rotate(-42.46)" height="52.29" width="98.13" y="304.6" x="-156.5"/>
+ <rect id="rect3415-9-5-0-1-7" transform="rotate(40.41)" height="56.27" width="106.1" y="151.5" x="524.1"/>
+ <rect id="rect3421-7-1" transform="rotate(-76.83)" height="55.73" width="242.5" y="845.4" x="-543.9"/>
+ <rect id="rect4373" transform="rotate(-40.22)" ry="0" height="115.6" width="250.8" y="-12.97" x="-115.3"/>
 </svg>

@@ -89,7 +89,7 @@ class Game extends State {
 
         Luxe.events.fire('game.init');
 
-        Luxe.timer.schedule(3, function(){
+        Luxe.timer.schedule(1, function(){
             Luxe.events.fire('game.start');
         });
 
@@ -239,20 +239,22 @@ class Game extends State {
 
         var map_size:Vector;
 
-        for(x in xml.elementsNamed('svg')){
+        for(svg in xml.elementsNamed('svg')){
 
-            var viewBox = x.get('viewBox').split(' ');
+            var viewBox = svg.get('viewBox').split(' ');
 
             map_size = new Vector( Std.parseFloat(viewBox[2]), Std.parseFloat(viewBox[3]) );
 
             // Draw all the walls and stuff
-            var map_elements = x.firstElement();
+            var map_elements = svg.elements();
             for(i in map_elements){
 
                 if(i.nodeType != Xml.XmlType.Element) continue;
 
                 switch(i.nodeName){
                     case 'rect': draw_rect(i);
+                    case 'circle': draw_circle(i);
+                    case 'path': draw_path(i);
                 }
 
             }
@@ -278,7 +280,6 @@ class Game extends State {
 
         var rect:Visual = new Visual({
             name: x.get('id'),
-            name_unique: false,
             geometry: Luxe.draw.box({
                 x: Std.parseFloat( x.get('x') ),
                 y: Std.parseFloat( x.get('y') ),
@@ -288,6 +289,105 @@ class Game extends State {
             pos: new Vector(0,0),
             color: new Color(0.2, 0.2, 0.2),
             depth: Std.parseFloat( x.get('y') )/1000,
+            scene: scene,
+        });
+
+
+        if(x.get('transform') != null && x.get('transform') != ''){
+
+            // Just get "rotate" property, don't care about anything else.
+            var t = x.get('transform');
+
+            var method = t.substring(0, t.indexOf('('));
+            var value = t.substring( t.indexOf('(')+1, t.indexOf(')') );
+            var values = value.split(' ');
+
+            if(method == 'rotate'){
+
+                rect.rotation_z = Std.parseFloat( value );
+
+            }else if(method == 'matrix'){
+
+                rect.rotation_z = Math.atan2( Std.parseFloat(values[2]), Std.parseFloat(values[0]) ) * 180 / Math.PI;
+
+            }
+        }
+
+    }
+
+    function draw_circle(x:Xml)
+    {
+
+        var _player:Int = -1;
+        var _character:Int = -1;
+
+        if(x.get('player') != null && x.get('player') != ''){
+
+            assert(x.get('character') != '', 'Character start circle should also have "character" attribute.');
+
+            _player = Std.parseInt( x.get('player') );
+            _character = Std.parseInt( x.get('character') );
+
+        }
+
+
+
+        var player_start:Visual = new Visual({
+            name: 'player_start.${_player}.${_character}',
+            geometry: Luxe.draw.ring({
+                x: 0,
+                y: 0,
+                r: 10,
+            }),
+            pos: new Vector(Std.parseFloat( x.get('cx') ),Std.parseFloat( x.get('cy') )),
+            color: new Color(0.7, 0.5, 0.2, 0.5),
+            depth: -1,
+            scene: scene,
+        });
+
+    }
+
+    function draw_path( x:Xml )
+    {
+
+        var d = x.get('d');
+
+        // Just draw a straight line with it.
+        // TODO: Draw full blown path with many methods: l, L, h, H etc.
+        // https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Basic_Shapes
+
+        var m = d.substring(1, d.indexOf('l'));
+        var l = d.substring(d.indexOf('l')+1, d.length);
+
+        var ma:Array<String>;
+        var la:Array<String>;
+
+        if(m.indexOf(' ') > 0){
+            ma = m.split(' ');
+        }else{
+            ma = [m.substring(0, m.lastIndexOf('-')),
+                  m.substring(m.lastIndexOf('-'), m.length)];
+        }
+        if(l.indexOf(' ') > 0){
+            la = l.split(' ');
+        }else{
+            la = [l.substring(0, l.lastIndexOf('-')),
+                  l.substring(l.lastIndexOf('-'), l.length)];
+        }
+
+        trace('m: "${m}", l: "${l}"');
+
+        var p1 = new Vector( Std.parseFloat(ma[0]), Std.parseFloat(ma[1]) );
+        var p2 = new Vector( Std.parseFloat(la[0]), Std.parseFloat(la[1]) );
+
+        var path = new Visual({
+            pos: p1,
+            geometry: Luxe.draw.line({
+                p0: new Vector(0,0),
+                p1: p2,
+                color: new Color(0.2, 0.2, 0.2),
+            }),
+            depth: 1,
             scene: scene,
         });
 

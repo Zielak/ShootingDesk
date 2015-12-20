@@ -140,8 +140,8 @@ class Main extends luxe.Game
         machine = new States({ name:'statemachine' });
 
         machine.add( new Game({
-            players: 3,
-            characters: 3,
+            players: 2,
+            characters: 4,
             distance: 10,
         }) );
         

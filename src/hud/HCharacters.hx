@@ -9,17 +9,19 @@ import luxe.Vector;
 import luxe.Visual;
 import phoenix.Batcher;
 
-class HPlayers extends Component
+class HCharacters extends Component
 {
     
     static public inline var BLOCK_WIDTH:Int = 100;
     static public inline var BLOCK_HEIGHT:Int = 100;
     static public inline var BG_PADDING:Int = 10;
 
-    var players:Array<HPlayerBlock>;
+    var characters:Array<HCharacterBlock>;
     var bg:Visual;
     var mark:Visual;
 
+    // Which player am I representing now?
+    var player:Player;
 
     var luxe_events:Array<String>;
 
@@ -27,31 +29,27 @@ class HPlayers extends Component
     {
 
         init_events();
+        player = Game.player;
 
         bg = new Visual({
-            name: 'HPlayers_bg',
-            pos: new Vector(Luxe.screen.w/2 - BLOCK_WIDTH*Game.players.length/2, 0),
+            name: 'HCharacters_bg',
+            pos: new Vector(
+                Luxe.screen.w/2 - BLOCK_WIDTH*player.characters.length/2,
+                Luxe.screen.h - BLOCK_HEIGHT - BG_PADDING*2),
             geometry: Luxe.draw.box({
                 x: 0, y: 0,
-                w: BLOCK_WIDTH*Game.players.length + BG_PADDING*2,
+                w: BLOCK_WIDTH*player.characters.length + BG_PADDING*2,
                 h: BLOCK_HEIGHT + BG_PADDING*2,
                 batcher: Hud.hud_batcher,
             }),
-            color: new Color(0.3, 0.3, 0.4, 0.8),
+            color: new Color(0.1, 0.2, 0.1, 0.9),
             depth: 1,
         });
 
-
-        players = new Array<HPlayerBlock>();
-        for(p in Game.players)
-        {
-            var hpb = new HPlayerBlock(p);
-            players.push( hpb );
-            bg.add( hpb );
-        }
+        add_characters();
         
         mark = new Visual({
-            name: 'HPlayers_mark',
+            name: 'HCharacters_mark',
             geometry: Luxe.draw.ngon({
                 x: 0, y: 0, r: 15,
                 sides: 3, solid: true,
@@ -60,44 +58,50 @@ class HPlayers extends Component
             color: new Color(1, 1, 1),
             depth: 3,
         });
+        mark.rotation_z = 60;
 
         update_bg();
-        update_players();
+        update_characters();
         update_mark();
 
     }
 
     override function onremoved()
     {
-        for(i in players){
+
+        for(i in characters){
             bg.remove(i.name);
         }
-        players = null;
+        characters = null;
         bg.destroy();
         mark.destroy();
 
         kill_events();
+
     }
 
 
     function init_events()
     {
+
         luxe_events = new Array<String>();
 
         luxe_events.push( Luxe.events.listen('game.next.round', function(_){
-            update_players();
+            update_characters();
             update_mark();
             update_bg();
         }));
         
         luxe_events.push( Luxe.events.listen('game.next.player', function(_){
-            update_players();
+            player = Game.player;
+            reset_characters();
+            // update_characters();
             update_mark();
             update_bg();
         }));
         
         luxe_events.push( Luxe.events.listen('game.next.character', function(_){
-            update_players();
+            update_characters();
         }));
 
     }
@@ -112,14 +116,14 @@ class HPlayers extends Component
 
     function update_bg()
     {
-        trace('HPlayers.update_bg()');
+        trace('HCharacters.update_bg()');
 
         // bg.scale.x = Game.players.length;
 
         bg.geometry.drop();
         bg.geometry = Luxe.draw.box({
             x: 0, y: 0,
-            w: BLOCK_WIDTH*Game.players.length + BG_PADDING*2,
+            w: BLOCK_WIDTH*player.characters.length + BG_PADDING*2,
             h: BLOCK_HEIGHT + BG_PADDING*2,
             batcher: Hud.hud_batcher,
         });
@@ -127,49 +131,78 @@ class HPlayers extends Component
 
     }
 
-    function update_players()
+    function update_characters()
     {
-        trace('HPlayers.update_players()');
+        trace('HCharacters.update_characters()');
         // Update positions
-        for(i in 0...players.length){
-            players[i].update_pos(BLOCK_WIDTH*i + BG_PADDING);
+        for(i in 0...characters.length){
+            characters[i].update_pos(BLOCK_WIDTH*i + BG_PADDING);
+            characters[i].update_stats();
+        }
+    }
+
+    function reset_characters()
+    {
+        remove_characters();
+        add_characters();
+    }
+
+    function remove_characters()
+    {
+        // Dunk old characters
+        for(i in characters){
+            remove(i.name);
+        }
+    }
+
+    function add_characters()
+    {
+        // Fetch new ones
+        characters = new Array<HCharacterBlock>();
+        for(p in player.characters)
+        {
+            var hpb = new HCharacterBlock(p);
+            characters.push( hpb );
+            bg.add( hpb );
         }
     }
 
     function update_mark()
     {
-        trace('HPlayers.update_mark()');
-        mark.pos.x = players[Game.cur_player].pos.x + HPlayers.BLOCK_WIDTH/2 + BG_PADDING;
-        mark.pos.y = players[Game.cur_player].pos.y + HPlayers.BLOCK_HEIGHT+BG_PADDING;
+        trace('HCharacters.update_mark()');
+
+        mark.pos.x = characters[Game.cur_character].pos.x + HCharacters.BLOCK_WIDTH/2 + BG_PADDING;
+
+        mark.pos.y = characters[Game.cur_character].pos.y + BG_PADDING;
     }
 
 }
 
-class HPlayerBlock extends Component
+class HCharacterBlock extends Component
 {
 
 
     var block:Visual;
     var name_txt:Text;
-    var player:Player;
+    var character:Character;
 
 
-    override function new( p:Player )
+    override function new( c:Character )
     {
-        player = p;
-        super({name: 'HPlayerBlock.${p.name}'});
+        character = c;
+        super({name: 'HCharacterBlock.${c.name}'});
     }
 
     override function onadded()
     {
         block = new Visual({
-            name: 'HPlayerBlock_block',
+            name: 'HCharacterBlock_block',
             name_unique: true,
-            pos: new Vector(Luxe.screen.w/2 - HPlayers.BLOCK_WIDTH*Game.players.length/2, HPlayers.BG_PADDING),
+            pos: new Vector(Luxe.screen.w/2 - HCharacters.BLOCK_WIDTH*Game.players.length/2, HCharacters.BG_PADDING),
             geometry: Luxe.draw.box({
                 x: 0, y: 0,
-                w: HPlayers.BLOCK_WIDTH,
-                h: HPlayers.BLOCK_HEIGHT,
+                w: HCharacters.BLOCK_WIDTH,
+                h: HCharacters.BLOCK_HEIGHT,
                 batcher: Hud.hud_batcher,
             }),
             depth: 2,
@@ -179,9 +212,9 @@ class HPlayerBlock extends Component
 
         name_txt = new Text({
             pos: new Vector(0,0),
-            bounds: new Rectangle(0, 0, HPlayers.BLOCK_WIDTH, HPlayers.BLOCK_HEIGHT),
+            bounds: new Rectangle(0, 0, HCharacters.BLOCK_WIDTH, HCharacters.BLOCK_HEIGHT),
             point_size : 16,
-            text : 'Player:\n${player.player_name}',
+            text : 'Character:\n${character.name.substring(character.name.indexOf('.', character.name.length))}',
             align : center,
             align_vertical : center,
             color : new Color().rgb(0xFFFFFF),
@@ -195,12 +228,19 @@ class HPlayerBlock extends Component
     {
         block.destroy();
         name_txt.destroy();
-        player = null;
+        character = null;
     }
 
     public function update_pos(x:Float)
     {
         block.pos.x = x;
+    }
+
+    public function update_stats()
+    {
+        var char_name = character.name.substring( character.name.indexOf('.', character.name.length));
+
+        name_txt.text = 'Character:\n${}';
     }
 
 }

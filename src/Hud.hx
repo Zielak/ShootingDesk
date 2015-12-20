@@ -115,7 +115,7 @@ class Hud extends Entity
     function setup_camera()
     {
         Luxe.camera.size = new Vector( Luxe.screen.w, Luxe.screen.h );
-        Luxe.camera.zoom = 4;
+        Luxe.camera.zoom = 2;
 
         Luxe.camera.pos.x = roundPixels(Luxe.camera.pos.x);
         Luxe.camera.pos.y = roundPixels(Luxe.camera.pos.y);
@@ -141,6 +141,7 @@ class Hud extends Entity
         // });
 
         add(new hud.HPlayers({name:'HPlayers'}));
+        add(new hud.HCharacters({name:'HCharacters'}));
 
     }
 
