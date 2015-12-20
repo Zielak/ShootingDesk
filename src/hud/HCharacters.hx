@@ -240,7 +240,7 @@ class HCharacterBlock extends Component
     {
         var char_name = character.name.substring( character.name.indexOf('.')+1, character.name.length );
 
-        name_txt.text = 'Character:\n${char_name}';
+        name_txt.text = 'Character:\n${char_name}\ndist: ${character.distance}';
     }
 
 }

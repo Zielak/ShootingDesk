@@ -331,7 +331,7 @@ class Game extends State {
         }
 
 
-
+        // Spawn points
         var player_start:Visual = new Visual({
             name: 'player_start.${_player}.${_character}',
             geometry: Luxe.draw.ring({
@@ -344,6 +344,13 @@ class Game extends State {
             depth: -1,
             scene: scene,
         });
+
+        // add that info to player
+        if( players[_player] != null ){
+
+            players[_player].add_spawn_point( player_start.pos );
+
+        }
 
     }
 

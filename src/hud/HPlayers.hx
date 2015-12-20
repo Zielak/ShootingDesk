@@ -150,6 +150,7 @@ class HPlayerBlock extends Component
 
 
     var block:Visual;
+    var color_block:Visual;
     var name_txt:Text;
     var player:Player;
 
@@ -162,6 +163,7 @@ class HPlayerBlock extends Component
 
     override function onadded()
     {
+
         block = new Visual({
             name: 'HPlayerBlock_block',
             name_unique: true,
@@ -177,6 +179,21 @@ class HPlayerBlock extends Component
             parent: entity,
         });
 
+        color_block = new Visual({
+            name: 'HPlayerBlock_color_block',
+            name_unique: true,
+            pos: new Vector(0, HPlayers.BLOCK_HEIGHT - 10 ),
+            geometry: Luxe.draw.box({
+                x: 0, y: 0,
+                w: HPlayers.BLOCK_WIDTH,
+                h: 10,
+                batcher: Hud.hud_batcher,
+            }),
+            depth: 2.1,
+            color: player.color,
+            parent: block,
+        });
+
         name_txt = new Text({
             pos: new Vector(0,0),
             bounds: new Rectangle(0, 0, HPlayers.BLOCK_WIDTH, HPlayers.BLOCK_HEIGHT),
@@ -189,11 +206,13 @@ class HPlayerBlock extends Component
             depth: 3,
             parent: block,
         });
+
     }
 
     override function onremoved()
     {
         block.destroy();
+        color_block.destroy();
         name_txt.destroy();
         player = null;
     }

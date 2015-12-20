@@ -143,6 +143,8 @@ class Hud extends Entity
         add(new hud.HPlayers({name:'HPlayers'}));
         add(new hud.HCharacters({name:'HCharacters'}));
 
+        add(new hud.HNextPlayer({name:'HNextPlayer'}));
+
     }
 
 
