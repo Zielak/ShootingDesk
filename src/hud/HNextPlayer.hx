@@ -23,7 +23,7 @@ class HNextPlayer extends Component
     {
 
         block = new Visual({
-            name: 'HPlayerBlock_block',
+            name: 'HNextPlayer_block',
             name_unique: true,
             pos: new Vector(Luxe.screen.w-BLOCK_WIDTH-10,
                 Luxe.screen.h-10-HCharacters.BLOCK_HEIGHT-HCharacters.BG_PADDING*2 - BLOCK_HEIGHT),
@@ -34,16 +34,26 @@ class HNextPlayer extends Component
                 batcher: Hud.hud_batcher,
             }),
             depth: 2,
-            color: new Color(0.4, 0.6, 0.1, 0.9),
-            parent: entity,
+            color: new Color(0.4, 0.6, 0.1, 0.8),
         });
 
         block.add(new components.Clickable({
+            name: 'clickable',
             size: new Vector(BLOCK_WIDTH, BLOCK_HEIGHT),
-            debug: true,
         }));
 
+        block.events.listen('mouseover', function(_){
+            block.color.a = 1;
+        });
+        block.events.listen('mouseout', function(_){
+            block.color.a = 0.8;
+        });
+        block.events.listen('mousedown', function(_){
+            Luxe.events.fire('ui.next_player');
+        });
+
         txt = new Text({
+            name: 'button_labelNEXTPLAYER',
             pos: new Vector(0,0),
             bounds: new Rectangle(0, 0, BLOCK_WIDTH, BLOCK_HEIGHT),
             point_size : 16,
@@ -55,6 +65,8 @@ class HNextPlayer extends Component
             depth: 3,
             parent: block,
         });
+
+
 
     }
 

@@ -1,4 +1,6 @@
+import luxe.Color;
 import luxe.Entity;
+import luxe.Text;
 import luxe.Vector;
 import luxe.Visual;
 
@@ -20,6 +22,7 @@ class Character extends Entity
     var luxe_events:Array<String>;
 
     var body:Visual;
+    var text:Text;
 
 
     override function new( options:CharacterOptions )
@@ -73,6 +76,17 @@ class Character extends Entity
             depth: 2,
             scene: options.scene,
             parent: this,
+        });
+
+        text = new Text({
+            pos : new Vector(0, -20),
+            size: new Vector(50, 10),
+            point_size : 8,
+            depth : 10,
+            align : TextAlign.center,
+            text : this.name.substring(this.name.indexOf('.')+1, this.name.length),
+            color : new Color().rgb(0x555555),
+            parent: body,
         });
     }
 

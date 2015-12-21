@@ -1,6 +1,8 @@
 
-import luxe.Input;
+import luxe.collision.shapes.*;
+import luxe.collision.ShapeDrawerLuxe;
 import luxe.Color;
+import luxe.Input;
 import luxe.options.DrawOptions;
 import luxe.Parcel;
 import luxe.ParcelProgress;
@@ -19,6 +21,9 @@ class Main extends luxe.Game
     public static var random:Random;
 
     public static var random_names:Array<String>;
+
+    public static var drawer:ShapeDrawerLuxe;
+    public static var shapes:Array<Shape>;
 
 
     //      DUDE, it's Luxe.screen.w ...
@@ -44,6 +49,9 @@ class Main extends luxe.Game
         random_names = ["Shona","Jeffie","Delicia","Lucie","Cristopher","Buffy","Edythe","Carley","Leda","Kathryne","Marita","Riva","Londa","Karma","Melodee","Mozell","Dong","Willetta","Raymonde","Trena","Elayne","Hans","Dirk","Patrice","My","Sona","Chan","Yevette","Stacey","Wilfredo","Von","Twana","Gena","Clarisa","Tashina","Gudrun","Emery","Phung","Neva","Marlana","Kerrie","Harold","Albert","Guillermina","Jonelle","Bailey","Alise","Magnolia","Hollis","Lani","Kia","Rosalva","Susy","Ali","Lakita","Jeneva","Eldon","Ami","Mirta","Nelle","Blake","Breanne","Delphine","Samatha","Kizzy","Granville","Madeleine","Ginny","Johna","Imelda","Caridad","Charolette","Jerri","Laronda","Jeana","Phylicia","Joycelyn","Kaitlin","Brittani","Shonda","Luisa","Collin","Celinda","Dawne","Shaquana","Sammie","Jarvis","Elmira","Romeo","Lester","Williemae","Tyler","Aja","Nieves","Providencia","Sheba","Ettie","Isobel","Florida","Paris","Charlie","Amanda","Willie","Brenda","Karen","Russell","Sara","Randy","Julie","Anne","Bob","Clark","Darek"];
 
         preload_assets();
+
+        shapes = [];
+        drawer = new ShapeDrawerLuxe();
 
     } //ready
 
@@ -83,6 +91,14 @@ class Main extends luxe.Game
      */
     override function onprerender()
     {
+
+        for(shape in shapes) drawer.drawShape(shape);
+
+        if(Hud.drawer != null)
+        {
+            for(shape in Hud.shapes) Hud.drawer.drawShape(shape);
+        }
+
         // if(hud != null){
         //     if(hud.has('grayscaleshader')){
         //         hud.get('grayscaleshader').onprerender();
@@ -141,7 +157,7 @@ class Main extends luxe.Game
 
         machine.add( new Game({
             players: 2,
-            characters: 4,
+            characters: 5,
             distance: 10,
         }) );
         
@@ -156,7 +172,10 @@ class Main extends luxe.Game
 
         Luxe.renderer.clear_color = new Color().rgb(0x000000);
 
-        init_states();
+        
+        // Luxe.timer.schedule(3, function(){
+            init_states();
+        // });
 
         Luxe.events.fire('game.assets.loaded');
 

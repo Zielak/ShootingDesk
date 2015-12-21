@@ -29,7 +29,7 @@ class HCharacters extends Component
     {
 
         init_events();
-        player = Game.player;
+        update_player();
 
         bg = new Visual({
             name: 'HCharacters_bg',
@@ -93,7 +93,7 @@ class HCharacters extends Component
         }));
         
         luxe_events.push( Luxe.events.listen('game.next.player', function(_){
-            player = Game.player;
+            update_player();
             reset_characters();
             // update_characters();
             update_mark();
@@ -102,6 +102,7 @@ class HCharacters extends Component
         
         luxe_events.push( Luxe.events.listen('game.next.character', function(_){
             update_characters();
+            update_mark();
         }));
 
     }
@@ -171,9 +172,15 @@ class HCharacters extends Component
     {
         trace('HCharacters.update_mark()');
 
-        mark.pos.x = characters[Game.cur_character].pos.x + HCharacters.BLOCK_WIDTH/2 + BG_PADDING;
+        mark.pos.x = characters[Game.cur_character].block.pos.x + BLOCK_WIDTH/2 + bg.pos.x;
 
-        mark.pos.y = characters[Game.cur_character].pos.y + BG_PADDING;
+        mark.pos.y = bg.pos.y + BG_PADDING;
+    }
+
+    function update_player()
+    {
+        player = Game.player;
+        trace('My player now is: ${player.player_name}');
     }
 
 }
@@ -182,7 +189,7 @@ class HCharacterBlock extends Component
 {
 
 
-    var block:Visual;
+    public var block:Visual;
     var name_txt:Text;
     var character:Character;
 
@@ -208,6 +215,27 @@ class HCharacterBlock extends Component
             depth: 2,
             color: new Color(0.1, 0.1, 0.1, 0.9),
             parent: entity,
+        });
+
+        block.add(new components.Clickable({
+            name: 'clickable',
+            size: new Vector(HCharacters.BLOCK_WIDTH, HCharacters.BLOCK_HEIGHT),
+        }));
+
+        block.events.listen('mouseover', function(_){
+            block.color.r = 0.2;
+            block.color.g = 0.3;
+            block.color.b = 0.2;
+            block.color.a = 1;
+        });
+        block.events.listen('mouseout', function(_){
+            block.color.r = 0.1;
+            block.color.g = 0.1;
+            block.color.b = 0.1;
+            block.color.a = 0.9;
+        });
+        block.events.listen('mousedown', function(_){
+            Luxe.events.fire('ui.change_character', character);
         });
 
         name_txt = new Text({

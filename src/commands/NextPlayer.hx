@@ -2,15 +2,17 @@ package commands;
 
 class NextPlayer implements Command
 {
+
+    public function new() {}
     
     public function execute()
     {
-        Game.next_player();
+        Luxe.events.fire('command.next_player', true);
     }
 
     public function undo()
     {
-        Game.next_player(false);
+        Luxe.events.fire('command.next_player', false);
     }
 
 }

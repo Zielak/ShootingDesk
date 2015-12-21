@@ -7,7 +7,6 @@ import luxe.Scene;
 import luxe.Sprite;
 import luxe.States;
 import luxe.Log.*;
-import luxe.collision.ShapeDrawerLuxe;
 import luxe.tween.Actuate;
 import luxe.utils.Maths;
 import luxe.utils.Random;
@@ -20,7 +19,6 @@ class Game extends State {
     public static inline var height:Int = 144;
 
     public static var random:Random;
-    public static var drawer:ShapeDrawerLuxe;
     public static var scene:Scene;
 
     public static var options:GameOptions;
@@ -73,7 +71,6 @@ class Game extends State {
 
         random = new Random(Math.random());
         scene = new Scene('gamescene');
-        drawer = new ShapeDrawerLuxe();
         commands = new CommandManager();
 
     }
@@ -91,6 +88,15 @@ class Game extends State {
 
         Luxe.timer.schedule(1, function(){
             Luxe.events.fire('game.start');
+            trace('######### GAME START ########');
+            trace('Players: ');
+            for(i in players){
+                trace('  - ${i.player_name}');
+                trace('    Characters: ');
+                for(c in i.characters){
+                    trace('      - ${c.name}');
+                }
+            }
         });
 
     }
@@ -119,26 +125,18 @@ class Game extends State {
         }
 
         cur_round = 0;
-        cur_player = 0;
+        cur_player = -1;
         cur_character = 0;
     }
 
 
-    function next_character(?next:Bool = true)
+    function change_character(i:Int)
     {
 
-        cur_character++;
+        cur_character = i;
 
-        if(cur_character >= player.characters.length){
-
-            next_player();
-
-        }else{
-
-            trace('Game: NEXT CHARACTER');
-            Luxe.events.fire('game.next.character');
-
-        }
+        trace('Game: CHANGE CHARACTER');
+        Luxe.events.fire('game.next.character');
 
     }
 
@@ -202,21 +200,36 @@ class Game extends State {
         game_events = new Array<String>();
 
         // Finally start the sequence when they touch
-        game_events.push( Luxe.events.listen('game.init', function(_)
-        {
+        game_events.push( Luxe.events.listen('game.init', function(_){
             trace('game.init');
-
-
-            
         }) );
 
-        game_events.push( Luxe.events.listen('game.start', function(_)
-        {
+        game_events.push( Luxe.events.listen('game.start', function(_){
             trace('game.start');
-
             next_player();
-            
         }) );
+
+
+        // UI Events (button clicks etc.)
+
+        game_events.push( Luxe.events.listen('ui.change_character', function(c:Character){
+            trace('ui.change_character');
+            Game.commands.execute_command( new commands.ChangeCharacter(c) );
+        }) );
+
+        game_events.push( Luxe.events.listen('ui.next_player', function(_){
+            trace('ui.next_player');
+            Game.commands.execute_command( new commands.NextPlayer() );
+        }) );
+
+        game_events.push( Luxe.events.listen('command.change_character', function(i:Int){
+            change_character(i);
+        }) );
+        game_events.push( Luxe.events.listen('command.next_player', function(next:Bool){
+            next_player(next);
+        }) );
+
+        
 
         
         
@@ -357,37 +370,79 @@ class Game extends State {
     function draw_path( x:Xml )
     {
 
-        var d = x.get('d');
 
         // Just draw a straight line with it.
         // TODO: Draw full blown path with many methods: l, L, h, H etc.
         // https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Basic_Shapes
 
-        var m = d.substring(1, d.indexOf('l'));
-        var l = d.substring(d.indexOf('l')+1, d.length);
+        // Extract commands
+        var d = x.get('d');
+        var r = new EReg("[a-z][0-9 .-]*", "ig");
+        var commands = new Array<SVGPathCommand>();
+        var str:String;
+        var command:SVGPathCommand = {method: "m", one: 0};
+        var _arrs:Array<String>;
 
-        var ma:Array<String>;
-        var la:Array<String>;
+        while( r.match(d) )
+        {
 
-        if(m.indexOf(' ') > 0){
-            ma = m.split(' ');
-        }else{
-            ma = [m.substring(0, m.lastIndexOf('-')),
-                  m.substring(m.lastIndexOf('-'), m.length)];
+            str = r.matched(0);
+
+            command = {method: "m", one: 0};
+
+            // Method is the first letter
+            command.method = str.substr(0, 1);
+            str = str.substring(1, str.length);
+
+            if(str.indexOf(' ') > 0){
+
+                // two values separated with space
+                _arrs = str.split(' ');
+                command.one = Std.parseFloat( _arrs[0] );
+                command.two = Std.parseFloat( _arrs[1] );
+
+            }else if(str.indexOf('-') > 0){
+
+                // two values, second is negative
+                command.one = Std.parseFloat( str.substring(0, str.lastIndexOf('-')) );
+                command.two = Std.parseFloat( str.substring(str.lastIndexOf('-'), str.length) );
+
+            }else{
+
+                // one value, positive or negative
+                command.one = Std.parseFloat( str );
+                command.two = null;
+
+            }
+
+            commands.push({
+                method: command.method,
+                one: command.one,
+                two: command.two,
+            });
+
+            // cut parsed command and repeat match
+            d = d.substring( r.matchedPos().pos+r.matchedPos().len, d.length+r.matchedPos().pos );
         }
-        if(l.indexOf(' ') > 0){
-            la = l.split(' ');
-        }else{
-            la = [l.substring(0, l.lastIndexOf('-')),
-                  l.substring(l.lastIndexOf('-'), l.length)];
+
+
+        var p1:Vector;
+        var p2:Vector;
+        var path:Visual;
+
+        // Right now I only care about drawing one straight line.
+        p1 = new Vector( commands[0].one, commands[0].two );
+
+        switch(commands[1].method){
+            case 'h':
+                p2 = new Vector( commands[1].one, 0 );
+            case 'v':
+                p2 = new Vector( 0, commands[1].one );
+            default:
+                p2 = new Vector( commands[1].one, commands[1].two );
         }
 
-        trace('m: "${m}", l: "${l}"');
-
-        var p1 = new Vector( Std.parseFloat(ma[0]), Std.parseFloat(ma[1]) );
-        var p2 = new Vector( Std.parseFloat(la[0]), Std.parseFloat(la[1]) );
-
-        var path = new Visual({
+        path = new Visual({
             pos: p1,
             geometry: Luxe.draw.line({
                 p0: new Vector(0,0),
@@ -443,3 +498,8 @@ typedef MapObject = {
     var options:Dynamic;
 }
 
+typedef SVGPathCommand = {
+    var method:String;
+    var one:Float;
+    @:optional var two:Null<Float>;
+}

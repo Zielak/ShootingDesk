@@ -60,6 +60,8 @@ class Collider extends Component {
     override function onadded()
     {
 
+        Main.drawer.drawShape(shape);
+
     }
 
     override function ondestroy()
@@ -87,7 +89,6 @@ class Collider extends Component {
             }
         }
         
-        // Game.shape_drawer.drawShape(shape);
     }
 
     override function update(dt:Float)

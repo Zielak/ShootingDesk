@@ -3,26 +3,30 @@ import luxe.Log.*;
 
 class CommandManager
 {
-    var last_command:Command;
+    var history:Array<Command>;
  
-    public function new() {}
+    public function new()
+    {
+        history = new Array<Command>();
+    }
  
     public function execute_command(c:Command)
     {
         c.execute();
-        last_command = c;
+        history.push(c);
     }
 
     public function isUndoAvailable():Bool
     {
-        return last_command != null;
+        return history.length > 0;
     }
      
     public function undo()
     {
-        assert(last_command != null, 'Should undo some command, got null.');
-        last_command.undo();
-        last_command = null;
+        assert(isUndoAvailable(), 'History is empty.');
+
+        history[history.length-1].undo();
+        history.pop();
     }
  
 }

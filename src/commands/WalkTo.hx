@@ -1,19 +1,34 @@
 package commands;
 
+import luxe.Vector;
+
+import luxe.Log.*;
+
 class WalkTo implements Command
 {
-    var who:Character;
+    var character:Character;
 
-    public function execute(c:Character)
+    var last_pos:Vector;
+    var new_pos:Vector;
+
+    public function new( c:Character, pos:Vector )
     {
-        who = c;
+        character = c;
+        new_pos = pos;
+    }
 
+    public function execute()
+    {
+
+        last_pos = character.pos.clone();
+
+        character.pos.copy_from(new_pos);
         
     }
 
     public function undo()
     {
-        // c.something
+        character.pos.copy_from(last_pos);
     }
 
 }

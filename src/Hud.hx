@@ -1,20 +1,21 @@
 
 package ;
 
-import luxe.options.EntityOptions;
+
+import luxe.collision.ShapeDrawerLuxe;
+import luxe.collision.shapes.*;
+import luxe.Color;
 import luxe.Entity;
-import luxe.tween.Actuate;
 import luxe.Input;
+import luxe.options.EntityOptions;
 import luxe.Rectangle;
 import luxe.Text;
+import luxe.tween.Actuate;
 import luxe.utils.Maths;
 import luxe.Vector;
-import luxe.Color;
 import luxe.Visual;
-
 import phoenix.Batcher;
 import phoenix.Camera;
-
 
 
 
@@ -23,6 +24,9 @@ class Hud extends Entity
 
     @:isVar public static var hud_batcher(default, null):Batcher;
 
+    // Shapes for debugging.
+    public static var drawer:ShapeDrawerLuxe;
+    public static var shapes:Array<Shape>;
 
     /**
      * What actor to follow?
@@ -83,12 +87,18 @@ class Hud extends Entity
 
     override public function new( options:EntityOptions )
     {
+        
         super(options);
 
         hud_batcher = Luxe.renderer.create_batcher({
             name : 'hud_batcher',
             layer : 10,
             // no_add : true,
+        });
+
+        shapes = [];
+        drawer = new ShapeDrawerLuxe({
+            batcher: hud_batcher,
         });
     }
     

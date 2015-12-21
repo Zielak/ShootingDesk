@@ -19,7 +19,9 @@ class Clickable extends Component
     public var over:Bool;
     @:isVar public var buttons (default, null):Map<MouseButton, Bool>;
 
-    @:isVar public var area (default, null):Rectangle;
+    public var area:Rectangle;
+    var shape:luxe.collision.shapes.Polygon;
+
 
     var enabled:Bool = true;
 
@@ -48,7 +50,8 @@ class Clickable extends Component
 
         over = false;
 
-        events_target = _options.events_target;
+        if(_options.events_target != null)
+            events_target = _options.events_target;
 
         size = _options.size;
         offset = (_options.offset == null)
@@ -56,8 +59,6 @@ class Clickable extends Component
 
         in_world = (_options.in_world == null)
             ? false : _options.in_world;
-
-        area = new Rectangle(offset.x, offset.y, size.x, size.y );
 
         cursor = new Vector(0,0);
 
@@ -88,21 +89,29 @@ class Clickable extends Component
     override function onadded()
     {
 
+        area = new Rectangle(entity.pos.x + offset.x, entity.pos.y + offset.y, size.x, size.y );
+        shape = luxe.collision.shapes.Polygon.rectangle(area.x, area.y, area.w, area.h, false);
+
+        Hud.shapes.push( shape );
+
     }
 
     override function onmousemove(e:MouseEvent)
     {
+
         if(!enabled) return;
         
         cursor = e.pos;
 
         if(area.point_inside( cursor ) && !over){
+
             over = true;
             entity.events.fire('mouseover', e);
             fire_events(over_events, e);
         }
 
         if(!area.point_inside( cursor ) && over){
+
             over = false;
             entity.events.fire('mouseout', e);
             fire_events(out_events, e);
@@ -144,57 +153,44 @@ class Clickable extends Component
     override function update(dt:Float)
     {
         _z = Luxe.camera.zoom;
+
         if(in_world)
         {
-            area.w = size.x * _z;
-            area.h = size.y * _z;
+            // area.w = size.x * _z;
+            // area.h = size.y * _z;
 
-            // var _vec:Vector = Luxe.camera.world_point_to_screen( new Vector(entity.pos.x, entity.pos.y) );
+            // // var _vec:Vector = Luxe.camera.world_point_to_screen( new Vector(entity.pos.x, entity.pos.y) );
             
-            // area.x = (entity.pos.x + offset.x - Luxe.camera.pos.x) * _z;
-            // area.y = (entity.pos.y + offset.y - Luxe.camera.pos.y) * _z;
+            // // area.x = (entity.pos.x + offset.x - Luxe.camera.pos.x) * _z;
+            // // area.y = (entity.pos.y + offset.y - Luxe.camera.pos.y) * _z;
 
-            // var _vec:Vector = Luxe.camera.world_point_to_screen( new Vector(
-            //     (entity.pos.x),
-            //     (entity.pos.y)
-            // ) );
+            // // var _vec:Vector = Luxe.camera.world_point_to_screen( new Vector(
+            // //     (entity.pos.x),
+            // //     (entity.pos.y)
+            // // ) );
             
-            area.x = (entity.pos.x + offset.x) * _z;
-            area.y = (entity.pos.y + offset.y) * _z;
+            // area.x = (entity.pos.x + offset.x) * _z;
+            // area.y = (entity.pos.y + offset.y) * _z;
 
-            if(debug){
-                var _vec:Vector = Luxe.camera.world_point_to_screen( new Vector( (area.x),(area.y) ) );
-                _vec.multiplyScalar(Luxe.camera.zoom);
+        }
+        else
+        {
 
-                Game.drawer.drawShape( luxe.collision.shapes.Polygon.rectangle(_vec.x, _vec.y, area.w, area.h) );
+            area.x = entity.pos.x + offset.x;
+            area.y = entity.pos.y + offset.y;
+
+            if(entity.parent != null){
+                area.x += entity.parent.pos.x;
+                area.y += entity.parent.pos.y;
             }
+
+            shape.x = area.x;
+            shape.y = area.y;
+
         }
 
-        
-
-        
-        // Luxe.draw.box({
-        //     x: area.x,
-        //     y: area.y,
-        //     w: area.w,
-        //     h: area.h,
-        //     color: new Color(1,0,0,0.1),
-        //     batcher: Main.debug_batcher
-        // });
     }
 
-
-
-    public function set_xy(x:Float, y:Float)
-    {
-        // if(in_world){
-        //     area.x = (x + offset.x) * Luxe.camera.zoom - size.x/2 * Luxe.camera.zoom;
-        //     area.y = (y + offset.y) * Luxe.camera.zoom - size.y/2 * Luxe.camera.zoom;
-        // }else{
-        area.x = x + offset.x - size.x/2;
-        area.y = y + offset.y - size.y/2;
-        // }
-    }
 
 
     function fire_events(arr:Array<String>, event:MouseEvent)
@@ -242,6 +238,4 @@ typedef ClickableOptions = {
     @:optional var up_events:Array<String>;
     @:optional var over_events:Array<String>;
     @:optional var out_events:Array<String>;
-
-    @:optional var debug:Bool;
 }
